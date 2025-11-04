@@ -6,13 +6,22 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		EB9B17C447C2B8C944BF70BA /* Pods_goal_folio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6112615AF099065846B498D /* Pods_goal_folio.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		473A08862EB9A3D500CCC438 /* goal-folio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "goal-folio.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		78982A61ACE8A54CB9751958 /* Pods-goal-folio.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-goal-folio.release.xcconfig"; path = "Target Support Files/Pods-goal-folio/Pods-goal-folio.release.xcconfig"; sourceTree = "<group>"; };
+		DD80045A8BDF53CB2158306D /* Pods-goal-folio.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-goal-folio.debug.xcconfig"; path = "Target Support Files/Pods-goal-folio/Pods-goal-folio.debug.xcconfig"; sourceTree = "<group>"; };
+		E6112615AF099065846B498D /* Pods_goal_folio.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_goal_folio.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		473A08882EB9A3D500CCC438 /* goal-folio */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = "goal-folio";
 			sourceTree = "<group>";
 		};
@@ -23,6 +32,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB9B17C447C2B8C944BF70BA /* Pods_goal_folio.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -34,6 +44,8 @@
 			children = (
 				473A08882EB9A3D500CCC438 /* goal-folio */,
 				473A08872EB9A3D500CCC438 /* Products */,
+				FFF85A144662FFD4EB452B87 /* Pods */,
+				A010F4C25F9EF4D28AFB81F1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -45,6 +57,24 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		A010F4C25F9EF4D28AFB81F1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E6112615AF099065846B498D /* Pods_goal_folio.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		FFF85A144662FFD4EB452B87 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				DD80045A8BDF53CB2158306D /* Pods-goal-folio.debug.xcconfig */,
+				78982A61ACE8A54CB9751958 /* Pods-goal-folio.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -52,9 +82,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 473A08912EB9A3D500CCC438 /* Build configuration list for PBXNativeTarget "goal-folio" */;
 			buildPhases = (
+				F2F1184BA3194748068DB9A8 /* [CP] Check Pods Manifest.lock */,
 				473A08822EB9A3D500CCC438 /* Sources */,
 				473A08832EB9A3D500CCC438 /* Frameworks */,
 				473A08842EB9A3D500CCC438 /* Resources */,
+				1899DD98B51464F01EC38519 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -64,8 +96,6 @@
 				473A08882EB9A3D500CCC438 /* goal-folio */,
 			);
 			name = "goal-folio";
-			packageProductDependencies = (
-			);
 			productName = "goal-folio";
 			productReference = 473A08862EB9A3D500CCC438 /* goal-folio.app */;
 			productType = "com.apple.product-type.application";
@@ -113,6 +143,48 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		1899DD98B51464F01EC38519 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-goal-folio/Pods-goal-folio-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-goal-folio/Pods-goal-folio-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-goal-folio/Pods-goal-folio-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F2F1184BA3194748068DB9A8 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-goal-folio-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		473A08822EB9A3D500CCC438 /* Sources */ = {
@@ -248,6 +320,7 @@
 		};
 		473A08922EB9A3D500CCC438 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DD80045A8BDF53CB2158306D /* Pods-goal-folio.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -280,6 +353,7 @@
 		};
 		473A08932EB9A3D500CCC438 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 78982A61ACE8A54CB9751958 /* Pods-goal-folio.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
