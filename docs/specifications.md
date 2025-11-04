@@ -1,5 +1,5 @@
 
-Milestone 1: Core iOS/Swift fundamentals (no networking, no persistence)
+# Milestone 1: Core iOS/Swift fundamentals (no networking, no persistence)
 1. Build a simple SwiftUI app shell
 • Features: Tab bar with two tabs: “Portfolio” and “Watchlist”.
 • Learn: Xcode basics, Swift language fundamentals, SwiftUI Views, @State, View composition, navigation.
@@ -15,7 +15,7 @@ Milestone 1: Core iOS/Swift fundamentals (no networking, no persistence)
 • Learn: AppStorage, Codable + UserDefaults, or lightweight persistence via SwiftData (if you’re on iOS 17+).
 • Goal: Data survives app restarts.
 
-Milestone 2: Networking and basic async programming
+# Milestone 2: Networking and basic async programming
 4. Fetch current prices for tickers from a public API
 • Features: Pull latest prices for the watchlist.
 • Learn: URLSession, Swift Concurrency (async/await), decoding JSON (Codable), error handling, refresh UI.
@@ -26,7 +26,7 @@ Milestone 2: Networking and basic async programming
 • Learn: Task, .refreshable in SwiftUI, cancellation, retry strategies.
 • Goal: Cleanly update prices on demand.
 
-Milestone 3: Portfolio modeling (manual first)
+# Milestone 3: Portfolio modeling (manual first)
 6. Manual portfolio tracking
 • Features: Add positions (ticker, shares, cost basis), compute total value.
 • Learn: Derived state, computed properties, basic math/formatting, number/date formatting, currency.
@@ -37,7 +37,7 @@ Milestone 3: Portfolio modeling (manual first)
 • Learn: SwiftData/Core Data or JSON persistence. Choose one and stick with it.
 • Goal: Manual entries are durable across launches and editable.
 
-Milestone 4: Analytics and goals (local-only first)
+# Milestone 4: Analytics and goals (local-only first)
 8. Investment goals
 • Features: Set a target portfolio value, show progress.
 • Learn: Simple view models, user input validation, basic charting (if you want a sparkline with Swift Charts).
@@ -53,7 +53,7 @@ Milestone 4: Analytics and goals (local-only first)
 • Learn: Basic math, optional parameters, what-if sliders (growth rate, monthly contribution).
 • Goal: Display projected date and sensitivity.
 
-Milestone 5: Better data and UX
+# Milestone 5: Better data and UX
 11. Historical price chart for a single symbol
 • Features: Show a simple line chart for the last N days.
 • Learn: Swift Charts, time series handling, multiple API endpoints, caching.
@@ -64,7 +64,7 @@ Milestone 5: Better data and UX
 • Learn: More computed metrics, number formatting, edge cases (splits, dividends later).
 • Goal: Portfolio screen shows meaningful metrics.
 
-Milestone 6: Plaid integration (move carefully)
+# Milestone 6: Plaid integration (move carefully)
 13. Learn OAuth/Link flow and sandbox
 • Features: Integrate Plaid Link in sandbox mode only.
 • Learn: Plaid setup, secure keys, environment configuration, handling tokens safely.
@@ -85,7 +85,7 @@ Milestone 6: Plaid integration (move carefully)
 • Learn: Data reconciliation, matching heuristics, conflict resolution.
 • Goal: More accurate performance and average contribution.
 
-Milestone 7: Advanced projections and polish
+# Milestone 7: Advanced projections and polish
 17. Better projections
 • Features: Monte Carlo or variable growth assumptions; scenario sliders.
 • Learn: Async computations, charts, performance considerations.

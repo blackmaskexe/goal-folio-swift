@@ -10,13 +10,17 @@ import SwiftUI
 
 struct MainTabView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView {
+            WatchlistView()
+                .tabItem {
+                    Label("Watchlist", systemImage: "star")
+                }
+            
+            PortfolioView()
+                .tabItem {
+                    Label("Portfolio", systemImage: "person")
+                }
         }
-        .padding()
     }
 }
 
