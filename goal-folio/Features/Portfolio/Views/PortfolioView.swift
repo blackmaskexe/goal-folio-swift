@@ -59,8 +59,6 @@ struct PortfolioView: View {
                     VStack(spacing: 16) {
                         HoldingsSection()
                         TopMoversSection()
-                        AllocationSection()
-                        RecentActivitySection()
                     }
                     .padding(.horizontal)
                 }
@@ -154,73 +152,6 @@ private struct RangePicker: View {
         }
     }
 }
-
-// MARK: - Line Chart (lightweight)
-
-private struct LineChart: View {
-    let values: [Double]
-
-    var body: some View {
-        GeometryReader { geo in
-            let width = geo.size.width
-            let height = geo.size.height
-            let maxVal = max(values.max() ?? 1, 1)
-            let minVal = values.min() ?? 0
-            let span = max(maxVal - minVal, 1)
-            let stepX = values.count > 1 ? width / CGFloat(values.count - 1) : 0
-
-            ZStack {
-                // Grid lines
-                VStack {
-                    ForEach(0..<4, id: \.self) { _ in
-                        Rectangle()
-                            .fill(Color.secondary.opacity(0.12))
-                            .frame(height: 1)
-                            .frame(maxHeight: .infinity, alignment: .top)
-                        Spacer()
-                    }
-                }
-
-                // Line path
-                Path { path in
-                    guard !values.isEmpty else { return }
-                    for (i, v) in values.enumerated() {
-                        let x = CGFloat(i) * stepX
-                        let yRatio = (v - minVal) / span
-                        let y = height - CGFloat(yRatio) * height
-                        if i == 0 {
-                            path.move(to: CGPoint(x: x, y: y))
-                        } else {
-                            path.addLine(to: CGPoint(x: x, y: y))
-                        }
-                    }
-                }
-                // FIX: StrokeStyle parameter order (lineCap before lineJoin)
-                .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
-
-                // Fill under line
-                Path { path in
-                    guard !values.isEmpty else { return }
-                    for (i, v) in values.enumerated() {
-                        let x = CGFloat(i) * stepX
-                        let yRatio = (v - minVal) / span
-                        let y = height - CGFloat(yRatio) * height
-                        if i == 0 {
-                            path.move(to: CGPoint(x: x, y: y))
-                        } else {
-                            path.addLine(to: CGPoint(x: x, y: y))
-                        }
-                    }
-                    path.addLine(to: CGPoint(x: width, y: height))
-                    path.addLine(to: CGPoint(x: 0, y: height))
-                    path.closeSubpath()
-                }
-                .fill(Color.accentColor.opacity(0.12))
-            }
-        }
-    }
-}
-
 // MARK: - Change Pill
 
 private struct ChangePill: View {
@@ -325,77 +256,6 @@ private struct TopMoversSection: View {
     }
 }
 
-private struct AllocationSection: View {
-    struct Slice: Identifiable {
-        let id = UUID()
-        let label: String
-        let percent: Double
-        let color: Color
-    }
-
-    private let slices: [Slice] = [
-        .init(label: "US Stocks", percent: 55, color: .blue),
-        .init(label: "Intl Stocks", percent: 20, color: .purple),
-        .init(label: "Bonds", percent: 15, color: .green),
-        .init(label: "Cash", percent: 10, color: .orange),
-    ]
-
-    var body: some View {
-        SectionCard(title: "Allocation") {
-            HStack {
-                // Simple ring
-                RingChart(slices: slices)
-                    .frame(width: 120, height: 120)
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(slices) { s in
-                        HStack {
-                            Circle().fill(s.color).frame(width: 10, height: 10)
-                            Text(s.label).font(.subheadline)
-                            Spacer()
-                            Text("\(s.percent, specifier: "%.0f")%")
-                                .font(.subheadline.weight(.semibold))
-                        }
-                    }
-                }
-                Spacer()
-            }
-            .padding(.vertical, 4)
-        }
-    }
-}
-
-private struct RecentActivitySection: View {
-    struct Activity: Identifiable {
-        let id = UUID()
-        let date: String
-        let description: String
-        let amount: Double
-    }
-
-    private let items: [Activity] = [
-        .init(date: "Nov 3", description: "Buy AAPL", amount: -250.00),
-        .init(date: "Nov 1", description: "Dividend VOO", amount: 14.22),
-        .init(date: "Oct 28", description: "Buy VOO", amount: -500.00),
-    ]
-
-    var body: some View {
-        SectionCard(title: "Recent Activity") {
-            ForEach(items) { item in
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(item.description).font(.subheadline.weight(.medium))
-                        Text(item.date).font(.caption).foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Text(item.amount, format: .currency(code: "USD"))
-                        .foregroundStyle(item.amount >= 0 ? .green : .primary)
-                }
-                .padding(.vertical, 8)
-                Divider().opacity(0.15)
-            }
-        }
-    }
-}
 
 // MARK: - Shared Section Card
 
@@ -411,60 +271,6 @@ private struct SectionCard<Content: View>: View {
         }
         .padding()
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
-    }
-}
-
-// MARK: - Ring Chart (simple)
-
-private struct RingChart: View {
-    let slices: [AllocationSection.Slice]
-
-    var total: Double {
-        max(slices.map { $0.percent }.reduce(0, +), 1)
-    }
-
-    var body: some View {
-        GeometryReader { geo in
-            let size = min(geo.size.width, geo.size.height)
-            let lineWidth = size * 0.22
-
-            ZStack {
-                Circle()
-                    .stroke(Color.secondary.opacity(0.15), lineWidth: lineWidth)
-
-                // Draw each arc
-                let angles = cumulativeAngles()
-                ForEach(Array(slices.enumerated()), id: \.offset) { idx, slice in
-                    let start = angles[idx].start
-                    let end = angles[idx].end
-                    CircleArc(startAngle: start, endAngle: end)
-                        .stroke(slice.color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
-                }
-
-                // Center label
-                VStack(spacing: 2) {
-                    Text("100%")
-                        .font(.subheadline.weight(.bold))
-                    Text("Invested")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .frame(width: size, height: size)
-        }
-    }
-
-    private func cumulativeAngles() -> [(start: Angle, end: Angle)] {
-        var result: [(Angle, Angle)] = []
-        var current: Double = -90 // start at top
-        for s in slices {
-            let delta = 360 * (s.percent / total)
-            let start = Angle(degrees: current)
-            current += delta
-            let end = Angle(degrees: current)
-            result.append((start, end))
-        }
-        return result
     }
 }
 

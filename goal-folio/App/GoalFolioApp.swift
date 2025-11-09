@@ -10,9 +10,11 @@ import SwiftUI
 
 @main
 struct goal_folioApp: App {
+    
     var body: some Scene {
         WindowGroup {
             MainTabView()
+            
         }
     }
 }

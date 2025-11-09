@@ -9,19 +9,26 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @StateObject private var tickerStore = TickerStore()
     var body: some View {
-        TabView {
-            WatchlistView()
-                .tabItem {
-                    Label("Watchlist", systemImage: "star")
+            TabView {
+                Tab("Watchlist", systemImage: "star") {
+                    NavigationStack {
+                        WatchlistView()
+                    }
+                        
                 }
-            
-            PortfolioView()
-                .tabItem {
-                    Label("Portfolio", systemImage: "person")
+                
+                Tab("Portfolio", systemImage: "person") {
+                    NavigationStack {
+                        PortfolioView()
+                    }
+                    
                 }
+            }
+            .environmentObject(tickerStore)
+
         }
-    }
 }
 
 #Preview {
