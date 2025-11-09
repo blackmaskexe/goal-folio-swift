@@ -11,4 +11,7 @@
       location = "group:docs"
       name = "docs">
    </FileSystemSynchronizedGroup>
+   <FileRef
+      location = "group:Secrets.xcconfig">
+   </FileRef>
 </Workspace>

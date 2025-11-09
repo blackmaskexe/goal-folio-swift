@@ -10,6 +10,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @StateObject private var tickerStore = TickerStore()
+    
     var body: some View {
             TabView {
                 Tab("Watchlist", systemImage: "star") {

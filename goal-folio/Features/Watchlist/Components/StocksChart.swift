@@ -1,0 +1,18 @@
+//
+//  StocksChart.swift
+//  goal-folio
+//
+//  Created by Pratham S on 11/9/25.
+//
+
+import SwiftUI
+
+//struct StocksChart: View {
+//    var body: some View {
+//        Chart {
+//            LinePlot(
+//                
+//        }
+//    }
+//}
+//

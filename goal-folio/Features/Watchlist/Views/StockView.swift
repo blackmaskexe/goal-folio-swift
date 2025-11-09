@@ -14,18 +14,19 @@ struct StockView: View {
     @EnvironmentObject var tickerStore: TickerStore
         
     
-    // Minimal inline sample data since PortfolioView.TimeRange is private to that file.
     private let sampleValues: [Double] = [0, 1.2, 0.8, 1.6, 2.0, 1.7, 2.4, 2.9, 2.6, 3.2]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Button("Add stock to favorites") {
-                    tickerStore.saveTicker(symbol: symbol, name: name)
-                }
+                
                 if tickerStore.isTickerSaved(symbol: symbol) {
                     Button("Remove stock from favorites") {
                         tickerStore.removeTicker(symbol: symbol)
+                    }
+                } else {
+                    Button("Add stock to favorites") {
+                        tickerStore.saveTicker(symbol: symbol, name: name)
                     }
                 }
                 
