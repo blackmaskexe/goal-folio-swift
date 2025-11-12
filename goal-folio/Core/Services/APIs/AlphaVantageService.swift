@@ -8,7 +8,8 @@
 import Alamofire
 import Foundation
 
-struct StockCandle {
+struct StockCandle: Identifiable {
+    let id = UUID()
     let time: Date
     let close: Double
 }
@@ -24,7 +25,7 @@ class AlphaVantageService {
         let params: Parameters = [
             "function": "TIME_SERIES_INTRADAY",
             "symbol": symbol,
-            "interval": "60min",
+            "interval": "15min",
             "apikey": apiKey,
             "outputsize": "compact",
             "extended_hours": "false"
