@@ -10,21 +10,24 @@ import SwiftUI
 struct StockView: View {
     let symbol: String
     let name: String
+    
     private let alphavantageService = AlphaVantageService()
-    @EnvironmentObject var tickerStore: TickerStore
+    @EnvironmentObject var stockStore: StockStore
+    @EnvironmentObject var loadingManager: LoadingManager
+    
     @State private var stockCandles: [StockCandle] = []
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 
-                if tickerStore.isTickerSaved(symbol: symbol) {
+                if stockStore.isStockSaved(symbol: symbol) {
                     Button("Remove stock from favorites") {
-                        tickerStore.removeTicker(symbol: symbol)
+                        stockStore.removeStock(symbol: symbol)
                     }
                 } else {
                     Button("Add stock to favorites") {
-                        tickerStore.saveTicker(symbol: symbol, name: name)
+                        stockStore.saveStock(symbol: symbol, name: name)
                     }
                 }
                 
@@ -43,9 +46,12 @@ struct StockView: View {
             .onAppear {
                 Task {
                     do {
+                        loadingManager.show()
                         stockCandles = try await alphavantageService.getRecentOpenDayCandles(symbol: symbol)
+                        loadingManager.hide()
                     } catch {
                         print("Error: ", error.localizedDescription)
+                        loadingManager.hide()
                     }
                     
                 }

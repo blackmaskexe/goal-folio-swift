@@ -6,64 +6,90 @@
 //
 // (M1.1) Static placeholder screen
 
-
-// In-order implementation:
-// 1. dummy search bar on top
-// 2. a bunch of cards for different stocks (static at this point)
-
-
 import SwiftUI
 
 struct WatchlistView: View {
-    @EnvironmentObject var tickerStore: TickerStore
+    @EnvironmentObject var stockStore: StockStore
+    @EnvironmentObject var loadingManager: LoadingManager
+
     @State var searchText: String = ""
+    @State var displayedStocks: [Stock] = []
     @FocusState private var isSearchFocused: Bool
+    @State private var searchTask: Task<Void, Never>? = nil
     
-    // TODO: make it so that when there is something inside of searchText,
-    // 1. fetch a list of static stocks (expansive list) that looks through, even if not favorited
-    // 2. then when comfortable, fetch the stocks from an api or something like that
-    
-    private var displayedTickers: [Ticker] {
-        // 1. If the search is focused, show an expansive list of stocks (static at the moment)
-        if isSearchFocused {
-            // Depending on if the user has searched anything
-            // in the searchbar or not:
-            if searchText == "" {
-                return StaticTickersData.all
-            }
-            return StaticTickersData.all.filter {
-                $0.symbol.localizedCaseInsensitiveContains(searchText) ||
-                $0.name.localizedCaseInsensitiveContains(searchText)
-            }
-        }
-             else {
-                return tickerStore.savedTickers
-            }
+    private var isShowingSearchbar: Bool {
+        return isSearchFocused || !searchText.isEmpty
     }
-   
-    
+        
+    private func setRemoteSearchStocks () async -> Void {
+        do {
+            loadingManager.show()
+            let stocks = try await StockFirebaseService.shared.searchStocks(query: searchText, limit: 10)
+            displayedStocks = stocks
+            loadingManager.hide()
+        } catch {
+            print("Error: \(error)")
+            displayedStocks = []
+            loadingManager.hide()
+        }
+    }
+
     var body: some View {
-        FavoriteTickerView(tickers: displayedTickers, isSearchFocused: isSearchFocused)
+        FavoriteStockView(stocks: displayedStocks, isSearchFocused: isSearchFocused)
             .searchable(text: $searchText, prompt: "Search a Stock")
             .searchFocused($isSearchFocused)
             .navigationTitle("Stock Watchlist")
-//            .toolbar {
-//                ToolbarItem(placement: .navigationBarTrailing) {
-//                    Button {
-//                        print("Icon tapped")
-//                    } label: {
-//                        Image(systemName: "plus")
-//                            .foregroundStyle(Color.accentColor)
-//                    }
-//                }
-//            }
+            .onAppear {
+                isSearchFocused = false
+                searchText = ""
+                displayedStocks = stockStore.savedStocks
+            }
+            .onChange(of: isSearchFocused) {
+                print(isSearchFocused, "Im a pimp named slickback")
+                // flow to show the appropriate stocks:
+                // 1. search isn't focused -> show saved stocks
+                // 2. search is focused:
+                    // a. No text -> Show static Stocks
+                    // b. There is text?
+                        // the user stops typing for ~200-300 ms, run API Call
+                        // show a loading bar type beat while this is happening
+                        // once fetched, show them
+                
+                if isSearchFocused {
+                    if searchText == "" {
+                        displayedStocks = StaticStockData.all
+                    } else {
+                        // handled by .onChange(of: searchText)
+                    }
+                } else {
+                    displayedStocks = stockStore.savedStocks
+                    searchText = ""
+                }
+            }
+            .onChange(of: searchText) {
+                // Debounce logic: Each time searchText changes, cancel previous task and start a new one
+                searchTask?.cancel()
+                if isSearchFocused {
+                    if searchText.isEmpty {
+                        displayedStocks = StaticStockData.all
+                    } else {
+                        searchTask = Task {
+                            // Wait 250ms, cancel if searchText changes again in that time
+                            try? await Task.sleep(nanoseconds: 250_000_000)
+                            // Only run if task was not cancelled
+                            await setRemoteSearchStocks()
+                        }
+                    }
+                }
+            }
+
     }
 }
 
-struct TickerCard: View {
+struct StockCard: View {
     let symbol: String
     let name: String
-    
+
     var body: some View {
         NavigationLink {
             StockView(symbol: symbol, name: name)
@@ -78,7 +104,7 @@ struct TickerCard: View {
                 }
                 .padding(12)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                
+
                 Image(systemName: "chevron.right")
                     .padding()
             }
@@ -89,22 +115,21 @@ struct TickerCard: View {
     }
 }
 
-struct FavoriteTickerView: View {
-    var tickers: [Ticker]
+struct FavoriteStockView: View {
+    var stocks: [Stock]
     var isSearchFocused: Bool
-    
+
     var body: some View {
         ScrollView {
-            
             if !isSearchFocused {
                 Text("Favorite Stocks")
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            
+
             VStack(spacing: 8) {
-                ForEach(tickers, id: \.self) { ticker in
-                    TickerCard(symbol: ticker.symbol, name: ticker.name)
+                ForEach(stocks, id: \.self) { stock in
+                    StockCard(symbol: stock.symbol, name: stock.name)
                 }
             }
             .padding(.horizontal)

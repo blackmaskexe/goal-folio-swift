@@ -11,4 +11,8 @@ struct Stock: Identifiable, Hashable, Codable {
     let id = UUID()
     let symbol: String
     let name: String
+    var type: String? = nil
+    var region: String? = nil
+    var currency: String? = nil
+    
 }

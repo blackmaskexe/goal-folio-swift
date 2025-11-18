@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-class TickerStore: ObservableObject {
+class StockStore: ObservableObject {
     private static var stocksStoreKey = "savedTickers"
     
     @AppStorage(stocksStoreKey) private var stockData: Data = Data()
@@ -35,16 +35,16 @@ class TickerStore: ObservableObject {
         stockData = (try? JSONEncoder().encode(savedStocks)) ?? Data()
     }
     
-    func saveTicker(symbol: String, name: String) {
+    func saveStock(symbol: String, name: String) {
         savedStocks.append(Stock(symbol: symbol, name: name))
         save()
     }
     
-    func removeTicker(symbol: String) {
+    func removeStock(symbol: String) {
         savedStocks.removeAll {$0.symbol.lowercased() == symbol.lowercased()}
     }
     
-    func isTickerSaved(symbol: String) -> Bool {
+    func isStockSaved(symbol: String) -> Bool {
         for stock in savedStocks {
             if stock.symbol == symbol {
                 return true

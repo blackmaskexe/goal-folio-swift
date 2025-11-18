@@ -10,6 +10,7 @@ import SwiftUI
 
 @main
 struct goal_folioApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate: AppDelegate
     
     var body: some Scene {
         WindowGroup {
