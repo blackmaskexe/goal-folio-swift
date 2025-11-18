@@ -16,73 +16,25 @@ struct WatchlistView: View {
     @State var displayedStocks: [Stock] = []
     @FocusState private var isSearchFocused: Bool
     @State private var searchTask: Task<Void, Never>? = nil
-    
-    private var isShowingSearchbar: Bool {
-        return isSearchFocused || !searchText.isEmpty
-    }
-        
-    private func setRemoteSearchStocks () async -> Void {
-        do {
-            loadingManager.show()
-            let stocks = try await StockFirebaseService.shared.searchStocks(query: searchText, limit: 10)
-            displayedStocks = stocks
-            loadingManager.hide()
-        } catch {
-            print("Error: \(error)")
-            displayedStocks = []
-            loadingManager.hide()
-        }
-    }
 
     var body: some View {
-        FavoriteStockView(stocks: displayedStocks, isSearchFocused: isSearchFocused)
-            .searchable(text: $searchText, prompt: "Search a Stock")
-            .searchFocused($isSearchFocused)
+        FavoriteStockView(stocks: displayedStocks, isSearchFocused: false)
             .navigationTitle("Stock Watchlist")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink {
+                        SearchStocksView()
+                            .environmentObject(loadingManager)
+                            .environmentObject(stockStore)
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                    }
+                }
+            }
             .onAppear {
-                isSearchFocused = false
-                searchText = ""
+                // Show saved/favorite stocks on the main screen
                 displayedStocks = stockStore.savedStocks
             }
-            .onChange(of: isSearchFocused) {
-                print(isSearchFocused, "Im a pimp named slickback")
-                // flow to show the appropriate stocks:
-                // 1. search isn't focused -> show saved stocks
-                // 2. search is focused:
-                    // a. No text -> Show static Stocks
-                    // b. There is text?
-                        // the user stops typing for ~200-300 ms, run API Call
-                        // show a loading bar type beat while this is happening
-                        // once fetched, show them
-                
-                if isSearchFocused {
-                    if searchText == "" {
-                        displayedStocks = StaticStockData.all
-                    } else {
-                        // handled by .onChange(of: searchText)
-                    }
-                } else {
-                    displayedStocks = stockStore.savedStocks
-                    searchText = ""
-                }
-            }
-            .onChange(of: searchText) {
-                // Debounce logic: Each time searchText changes, cancel previous task and start a new one
-                searchTask?.cancel()
-                if isSearchFocused {
-                    if searchText.isEmpty {
-                        displayedStocks = StaticStockData.all
-                    } else {
-                        searchTask = Task {
-                            // Wait 250ms, cancel if searchText changes again in that time
-                            try? await Task.sleep(nanoseconds: 250_000_000)
-                            // Only run if task was not cancelled
-                            await setRemoteSearchStocks()
-                        }
-                    }
-                }
-            }
-
     }
 }
 
@@ -121,11 +73,9 @@ struct FavoriteStockView: View {
 
     var body: some View {
         ScrollView {
-            if !isSearchFocused {
-                Text("Favorite Stocks")
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
+            Text("Favorite Stocks")
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             VStack(spacing: 8) {
                 ForEach(stocks, id: \.self) { stock in
@@ -135,5 +85,158 @@ struct FavoriteStockView: View {
             .padding(.horizontal)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+// MARK: - Dedicated Search Screen
+
+struct SearchStocksView: View {
+    @EnvironmentObject var loadingManager: LoadingManager
+    @EnvironmentObject var stockStore: StockStore
+
+    @State private var query: String = ""
+    @State private var results: [Stock] = []
+    @State private var searchTask: Task<Void, Never>? = nil
+    @FocusState private var isFieldFocused: Bool
+
+    private var showSuggestions: Bool {
+        isFieldFocused && query.isEmpty
+    }
+
+    var body: some View {
+        VStack(spacing: 12) {
+            // Custom Search Bar
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+
+                TextField("Search a Stock", text: $query)
+                    .textInputAutocapitalization(.characters)
+                    .disableAutocorrection(true)
+                    .focused($isFieldFocused)
+                    .onChange(of: query) {
+                        debounceSearch()
+                    }
+
+                if !query.isEmpty {
+                    Button {
+                        query = ""
+                        results = StaticStockData.all
+                        isFieldFocused = true
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(10)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color(.secondarySystemBackground))
+            )
+            .padding(.horizontal)
+
+            // Content
+            Group {
+                if showSuggestions {
+                    SuggestionsList(stocks: StaticStockData.all)
+                } else {
+                    ResultsList(stocks: results)
+                }
+            }
+        }
+        .navigationTitle("Search")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            // Start with suggestions visible and focus the field
+            results = StaticStockData.all
+            isFieldFocused = true
+        }
+        .onDisappear {
+            searchTask?.cancel()
+            searchTask = nil
+        }
+    }
+
+    // MARK: - Debounce and search
+
+    private func debounceSearch() {
+        searchTask?.cancel()
+        if query.isEmpty {
+            // When cleared, show suggestions
+            results = StaticStockData.all
+            return
+        }
+
+        searchTask = Task {
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            await performSearch()
+        }
+    }
+
+    @MainActor
+    private func performSearch() async {
+        do {
+            loadingManager.show()
+            let stocks = try await StockFirebaseService.shared.searchStocks(query: query, limit: 10)
+            results = stocks
+            loadingManager.hide()
+        } catch {
+            print("Search error: \(error)")
+            results = []
+            loadingManager.hide()
+        }
+    }
+}
+
+// MARK: - Subviews for Search Screen
+
+private struct SuggestionsList: View {
+    let stocks: [Stock]
+
+    var body: some View {
+        List {
+            Section("Suggestions") {
+                ForEach(stocks, id: \.self) { stock in
+                    NavigationLink {
+                        StockView(symbol: stock.symbol, name: stock.name)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(stock.symbol).font(.headline)
+                            Text(stock.name).font(.subheadline).foregroundStyle(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+    }
+}
+
+private struct ResultsList: View {
+    let stocks: [Stock]
+
+    var body: some View {
+        List {
+            if stocks.isEmpty {
+                Text("No results")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(stocks, id: \.self) { stock in
+                    NavigationLink {
+                        StockView(symbol: stock.symbol, name: stock.name)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(stock.symbol).font(.headline)
+                            Text(stock.name).font(.subheadline).foregroundStyle(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
     }
 }
