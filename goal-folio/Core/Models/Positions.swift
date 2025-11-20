@@ -17,10 +17,10 @@ enum PositionCategory: String, Codable, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .cash: return "Cash Assets"
-        case .equities: return "Equities / Stocks"
-        case .digitalAssets: return "Digital Assets"
-        case .other: return "Other Positions"
+        case .cash: return "Cash"
+        case .equities: return "Equities"
+        case .digitalAssets: return "Digital"
+        case .other: return "Other"
         }
     }
 }

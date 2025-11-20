@@ -12,6 +12,7 @@ struct PortfolioView: View {
     @EnvironmentObject var positionsStore: PositionsStore
 
     @State private var selectedRange: TimeRange = .oneD
+    @State private var showingAddPosition: Bool = false
 
     // Derived state from store
     private var series: [TimeSeriesPoint] {
@@ -89,7 +90,25 @@ struct PortfolioView: View {
                 .padding(.vertical, 12)
             }
             .navigationTitle("Portfolio")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showingAddPosition = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add Position")
+                }
+            }
             .background(Color(.systemGroupedBackground))
+            // Present AddPositionsView as a modal sheet
+            .sheet(isPresented: $showingAddPosition) {
+                NavigationStack {
+                    AddPositionsView()
+                        .environmentObject(positionsStore)
+                        .navigationBarTitleDisplayMode(.inline)
+                }
+            }
         }
         .onAppear {
             // Ensure today value is present; PositionsStore already updates on init/CRUD.
